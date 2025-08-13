@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ 
   origin: process.env.NODE_ENV === 'production' 
     ? [
-        'https://your-project.vercel.app', // Replace with your actual Vercel domain
+        'https://text2audio-neon.vercel.app/', // Replace with your actual Vercel domain
         'https://your-custom-domain.com'   // Replace with your custom domain if any
       ]
     : ['http://localhost:5173', 'http://localhost:3000'],

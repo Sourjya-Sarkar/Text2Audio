@@ -1,23 +1,20 @@
 {
   "name": "text-to-audio-app",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Text to Speech application with AI voices",
+  "main": "api/server.js",
   "scripts": {
-    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-    "frontend": "cd client && npm run dev",
-    "backend": "nodemon server.js", 
-    "vercel-build": "cd client && npm run build",
-    "build": "cd client && npm run build",
-    "preview": "cd client && npm run preview"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.0",
-    "nodemon": "^3.0.0"
+    "build": "cd client && npm install && npm run build",
+    "dev": "concurrently \"cd api && npm run dev\" \"cd client && npm run dev\"",
+    "start": "cd api && npm start"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "axios": "^1.6.7"
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
