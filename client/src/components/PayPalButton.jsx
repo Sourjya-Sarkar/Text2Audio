@@ -12,8 +12,8 @@ const PaypalPayment = () => {
               {
                 description: "Upgrade to Pro Plan - Text to Speech App",
                 amount: {
-                  currency_code: "INR",
-                  value: "10000.00", // ₹10,000 INR
+                  currency_code: "USD", // ✅ Changed to USD
+                  value: "120.00", // Example: $120 USD
                 },
               },
             ],
@@ -23,7 +23,7 @@ const PaypalPayment = () => {
           return actions.order.capture().then((details) => {
             console.log("Payment Approved: ", details);
             alert("Payment successful! Thank you, " + details.payer.name.given_name);
-            // Here you can unlock 'Pro' features
+            // 🔹 Here you can update Firestore to mark user as "Pro"
           });
         }}
         onError={(err) => {
