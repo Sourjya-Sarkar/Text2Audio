@@ -13,6 +13,8 @@ build/
 .env.local
 .env.production
 .env.development
+firebase.env.local
+client/firebase.env.local
 
 # Vercel
 .vercel
