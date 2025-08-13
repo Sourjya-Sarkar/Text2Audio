@@ -25,6 +25,8 @@ const GeneratePage = () => {
   const [loading, setLoading] = useState(false);
   const [characterCount, setCharacterCount] = useState(0);
   const [plan, setPlan] = useState('Free');
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   const toast = useToast();
 
@@ -35,43 +37,56 @@ const GeneratePage = () => {
   ];
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
+    const unsubscribeAuth = auth.onAuthStateChanged(async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
 
-      const docRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setCharacterCount(data.characterCount || 0);
-        setPlan(data.plan || 'Free');
-      } else {
-        await setDoc(docRef, { characterCount: 0, plan: 'Free' });
-        setCharacterCount(0);
-        setPlan('Free');
-      }
-    };
-
-    fetchUserData();
-
-    // Add real-time listener to keep character count in sync
-    const user = auth.currentUser;
-    if (user) {
-      const docRef = doc(db, 'users', user.uid);
-      const unsubscribe = onSnapshot(docRef, (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setCharacterCount(data.characterCount || 0);
           setPlan(data.plan || 'Free');
+        } else {
+          await setDoc(docRef, { characterCount: 0, plan: 'Free' });
+          setCharacterCount(0);
+          setPlan('Free');
         }
-      });
 
-      return () => unsubscribe();
-    }
+        // Add real-time listener to keep character count in sync
+        const unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setCharacterCount(data.characterCount || 0);
+            setPlan(data.plan || 'Free');
+          }
+        });
+
+        return () => unsubscribeSnapshot();
+      } else {
+        setUser(null);
+        setCharacterCount(0);
+        setPlan('Free');
+      }
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribeAuth();
   }, []);
 
   const handleGenerate = async () => {
+    if (!user) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please login to generate audio.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (!prompt) {
       toast({
         title: 'Prompt required',
@@ -118,6 +133,14 @@ const GeneratePage = () => {
 
       // Update local state to reflect the new count
       setCharacterCount((prev) => prev + charactersInPrompt);
+      
+      toast({
+        title: 'Audio generated successfully!',
+        description: 'Your audio has been generated and saved to your history.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       toast({
         title: 'Generation failed',
@@ -157,9 +180,15 @@ const GeneratePage = () => {
         <Stack spacing={6}>
           <Heading textAlign="center">AI Voice Generator</Heading>
 
-          <Text fontSize="sm" color="gray.300" textAlign="center">
-            Plan: {plan} &nbsp;|&nbsp; {characterCount} / {plan === 'Free' ? 200 : '∞'} characters used
-          </Text>
+          {!authLoading && !user ? (
+            <Text fontSize="sm" color="red.300" textAlign="center">
+              Please login to generate audio
+            </Text>
+          ) : (
+            <Text fontSize="sm" color="gray.300" textAlign="center">
+              Plan: {plan} &nbsp;|&nbsp; {characterCount} / {plan === 'Free' ? 200 : '∞'} characters used
+            </Text>
+          )}
 
           <Input
             placeholder="Enter your prompt"
@@ -167,6 +196,7 @@ const GeneratePage = () => {
             onChange={(e) => setPrompt(e.target.value)}
             bg="white"
             color="black"
+            isDisabled={authLoading || !user}
           />
 
           <Select
@@ -174,6 +204,7 @@ const GeneratePage = () => {
             onChange={(e) => setSelectedVoice(e.target.value)}
             bg="white"
             color="black"
+            isDisabled={authLoading || !user}
           >
             {voiceOptions.map((voice) => (
               <option key={voice.id} value={voice.id}>
@@ -185,10 +216,10 @@ const GeneratePage = () => {
           <Button
             onClick={handleGenerate}
             colorScheme="teal"
-            isLoading={loading}
-            isDisabled={plan === 'Free' && characterCount >= 200}
+            isLoading={loading || authLoading}
+            isDisabled={authLoading || !user || (plan === 'Free' && characterCount >= 200)}
           >
-            Generate Audio
+            {authLoading ? 'Loading...' : 'Generate Audio'}
           </Button>
 
           {audioUrl && (

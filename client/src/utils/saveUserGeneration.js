@@ -8,15 +8,15 @@ export const saveUserGeneration = async (uid, text, audioUrl) => {
     const charCount = text.length;
 
     if (userSnap.exists()) {
-      const prevCount = userSnap.data().charCount || 0;
+      const prevCount = userSnap.data().characterCount || 0;
       await setDoc(userRef, {
         ...userSnap.data(),
-        charCount: prevCount + charCount,
+        characterCount: prevCount + charCount,
       });
     } else {
       await setDoc(userRef, {
         plan: 'Free',
-        charCount: charCount,
+        characterCount: charCount,
       });
     }
 
@@ -46,7 +46,7 @@ export const saveUserGeneration = async (uid, text, audioUrl) => {
       uid,
       text,
       audioUrl: audioData, // Store base64 data instead of blob URL
-      charCount,
+      characterCount: charCount,
       createdAt: serverTimestamp(),
     });
   } catch (error) {
