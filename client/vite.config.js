@@ -16,7 +16,7 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           chakra: ['@chakra-ui/react', '@emotion/react', '@emotion/styled'],
-          firebase: ['firebase', 'react-firebase-hooks'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
           utils: ['axios', 'framer-motion'],
         },
       },
@@ -24,8 +24,5 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-  },
-  optimizeDeps: {
-    include: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
   },
 });
