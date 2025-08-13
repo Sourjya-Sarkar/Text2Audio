@@ -17,11 +17,15 @@ export default defineConfig({
           vendor: ['react', 'react-dom'],
           chakra: ['@chakra-ui/react', '@emotion/react', '@emotion/styled'],
           firebase: ['firebase', 'react-firebase-hooks'],
+          utils: ['axios', 'framer-motion'],
         },
       },
     },
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+  },
+  optimizeDeps: {
+    include: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
   },
 });

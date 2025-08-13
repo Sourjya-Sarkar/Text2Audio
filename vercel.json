@@ -10,7 +10,7 @@
       "use": "@vercel/static-build", 
       "config": { 
         "distDir": "dist",
-        "buildCommand": "npm run build"
+        "buildCommand": "node vercel-build.js"
       } 
     }
   ],
@@ -24,9 +24,6 @@
       "destination": "/client/dist/$1" 
     }
   ],
-  "env": {
-    "ELEVENLABS_API_KEY": "@elevenlabs_api_key"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
