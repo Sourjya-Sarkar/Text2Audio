@@ -12,8 +12,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ 
   origin: process.env.NODE_ENV === 'production' 
     ? [
-        'https://text2audio-neon.vercel.app/', // Replace with your actual Vercel domain
-        'https://your-custom-domain.com'   // Replace with your custom domain if any
+        'https://text2audio-neon.vercel.app', // Your Vercel domain
+        'https://text-to-audio-c5928.web.app', // Firebase hosting domain
+        'https://text-to-audio-c5928.firebaseapp.com' // Firebase app domain
       ]
     : ['http://localhost:5173', 'http://localhost:3000'],
   credentials: true,
