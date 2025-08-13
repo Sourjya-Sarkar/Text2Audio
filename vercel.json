@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "builds": [
+    { 
+      "src": "api/server.js", 
+      "use": "@vercel/node" 
+    },
+    { 
+      "src": "client/package.json", 
+      "use": "@vercel/static-build", 
+      "config": { 
+        "distDir": "dist",
+        "buildCommand": "npm run build"
+      } 
+    }
+  ],
+  "routes": [
+    { 
+      "src": "/api/(.*)", 
+      "dest": "/api/server.js" 
+    },
+    { 
+      "src": "/(.*)", 
+      "dest": "/client/dist/$1" 
+    }
+  ],
+  "env": {
+    "ELEVENLABS_API_KEY": "@elevenlabs_api_key"
+  },
+  "functions": {
+    "api/server.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ]
+}
