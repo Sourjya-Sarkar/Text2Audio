@@ -152,7 +152,7 @@ export default function UpgradePro() {
             Back to Home
           </Button>
 
-          <VStack spacing={8} w="full" bg="gray.900" p={8} borderRadius="lg">
+          <VStack spacing={8} w="full" bg="transparent" p={8} borderRadius="lg">
             <VStack spacing={4} textAlign="center">
               <Icon as={FaCrown} w={20} h={20} color="purple.400" />
               <Heading size="xl" color="purple.400">
