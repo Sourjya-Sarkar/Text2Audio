@@ -37,42 +37,79 @@ const GeneratePage = () => {
   ];
 
   useEffect(() => {
+    console.log('GeneratePage: Setting up auth listener');
+    
+    // Check if user is already authenticated
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      console.log('GeneratePage: User already authenticated:', currentUser.uid);
+      setUser(currentUser);
+      setAuthLoading(false);
+    }
+    
+    // Add a timeout fallback to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.log('GeneratePage: Auth timeout reached, setting loading to false');
+      setAuthLoading(false);
+    }, 5000); // 5 second timeout
+
     const unsubscribeAuth = auth.onAuthStateChanged(async (currentUser) => {
+      console.log('GeneratePage: Auth state changed:', currentUser ? 'User logged in' : 'No user');
+      clearTimeout(timeoutId); // Clear timeout when auth state changes
+      
       if (currentUser) {
         setUser(currentUser);
+        console.log('GeneratePage: Setting user:', currentUser.uid);
         
-        const docRef = doc(db, 'users', currentUser.uid);
-        const docSnap = await getDoc(docRef);
+        try {
+          const docRef = doc(db, 'users', currentUser.uid);
+          const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setCharacterCount(data.characterCount || 0);
-          setPlan(data.plan || 'Free');
-        } else {
-          await setDoc(docRef, { characterCount: 0, plan: 'Free' });
-          setCharacterCount(0);
-          setPlan('Free');
-        }
-
-        // Add real-time listener to keep character count in sync
-        const unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setCharacterCount(data.characterCount || 0);
             setPlan(data.plan || 'Free');
+            console.log('GeneratePage: User data loaded:', data);
+          } else {
+            await setDoc(docRef, { characterCount: 0, plan: 'Free' });
+            setCharacterCount(0);
+            setPlan('Free');
+            console.log('GeneratePage: Created new user document');
           }
-        });
 
-        return () => unsubscribeSnapshot();
+          // Add real-time listener to keep character count in sync
+          const unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              setCharacterCount(data.characterCount || 0);
+              setPlan(data.plan || 'Free');
+            }
+          });
+
+          // Clean up snapshot listener when component unmounts
+          return () => unsubscribeSnapshot();
+        } catch (error) {
+          console.error('GeneratePage: Error fetching user data:', error);
+          setCharacterCount(0);
+          setPlan('Free');
+        }
       } else {
         setUser(null);
         setCharacterCount(0);
         setPlan('Free');
+        console.log('GeneratePage: No user, resetting state');
       }
+      
+      // Always set loading to false after auth state is determined
+      console.log('GeneratePage: Setting authLoading to false');
       setAuthLoading(false);
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      console.log('GeneratePage: Cleaning up auth listener');
+      clearTimeout(timeoutId);
+      unsubscribeAuth();
+    };
   }, []);
 
   const handleGenerate = async () => {
@@ -180,7 +217,11 @@ const GeneratePage = () => {
         <Stack spacing={6}>
           <Heading textAlign="center">AI Voice Generator</Heading>
 
-          {!authLoading && !user ? (
+          {authLoading ? (
+            <Text fontSize="sm" color="yellow.300" textAlign="center">
+              Loading user data... (Debug: authLoading={authLoading.toString()}, user={user ? 'exists' : 'null'})
+            </Text>
+          ) : !user ? (
             <Text fontSize="sm" color="red.300" textAlign="center">
               Please login to generate audio
             </Text>
