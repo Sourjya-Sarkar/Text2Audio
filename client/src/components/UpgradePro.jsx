@@ -10,7 +10,6 @@ import {
   Heading,
   Text,
   VStack,
-  HStack,
   Badge,
   Button,
   useToast,
@@ -57,12 +56,14 @@ export default function UpgradePro() {
         <ParticleBackground />
         <Navbar />
         <Container maxW="md" py={20} centerContent>
-          <VStack spacing={6}>
+          <VStack spacing={6} bg="whiteAlpha.100" p={10} borderRadius="lg" boxShadow="lg">
             <Icon as={FaCrown} w={16} h={16} color="purple.400" />
-            <Heading size="lg" color="purple.400">
+            <Heading size="lg" color="purple.300">
               You're Already Pro! 🎉
             </Heading>
-            <Text color="gray.300">You already have access to all Pro features.</Text>
+            <Text color="gray.200" textAlign="center">
+              You already have access to all Pro features.
+            </Text>
             <Button colorScheme="purple" onClick={() => navigate("/")}>
               Go to Home
             </Button>
@@ -94,16 +95,13 @@ export default function UpgradePro() {
         isClosable: true,
       });
 
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
+      setTimeout(() => navigate("/"), 3000);
     } catch (error) {
       console.error("Error upgrading to Pro:", error);
       setPaymentStatus("failed");
       toast({
         title: "❌ Upgrade Failed",
-        description:
-          "Payment was successful but account update failed. Contact support.",
+        description: "Payment was successful but account update failed. Contact support.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -116,8 +114,7 @@ export default function UpgradePro() {
     setPaymentStatus("failed");
     toast({
       title: "❌ Payment Failed",
-      description:
-        "There was an error processing your payment. Please try again.",
+      description: "There was an error processing your payment. Please try again.",
       status: "error",
       duration: 5000,
       isClosable: true,
@@ -139,64 +136,63 @@ export default function UpgradePro() {
     <Box bg="black" color="white" minHeight="100vh">
       <ParticleBackground />
       <Navbar />
-      <Container maxW="2xl" py={10}>
-        <VStack spacing={6}>
+      <Container maxW="2xl" py={12}>
+        <VStack spacing={6} align="stretch">
           <Button
             leftIcon={<FaArrowLeft />}
-            variant="ghost"
+            variant="outline"
             onClick={() => navigate("/")}
             alignSelf="flex-start"
-            color="gray.300"
-            _hover={{ bg: "gray.800" }}
+            colorScheme="gray"
+            borderColor="gray.500"
           >
             Back to Home
           </Button>
 
-          <VStack spacing={8} w="full" bg="white" p={8} borderRadius="lg">
+          {/* Main Card */}
+          <VStack
+            spacing={8}
+            w="full"
+            bg="white"
+            color="gray.800"
+            p={10}
+            borderRadius="lg"
+            boxShadow="2xl"
+          >
             <VStack spacing={4} textAlign="center">
-              <Icon as={FaCrown} w={20} h={20} color="purple.400" />
-              <Heading size="xl" color="purple.400">
+              <Icon as={FaCrown} w={20} h={20} color="purple.500" />
+              <Heading size="xl" color="purple.600">
                 Upgrade to Pro
               </Heading>
-              <Text color="gray.300" fontSize="lg">
-                Unlock unlimited text-to-speech generation and premium features
+              <Text fontSize="lg" color="gray.600">
+                Unlock unlimited text-to-speech generation and premium features.
               </Text>
             </VStack>
 
-            <VStack spacing={4} w="full">
-              <Text fontSize="3xl" fontWeight="bold" color="green.400">
+            <VStack spacing={1} w="full">
+              <Text fontSize="3xl" fontWeight="bold" color="green.500">
                 Only $120
               </Text>
-              <Text fontSize="sm" color="gray.400">
+              <Text fontSize="sm" color="gray.500">
                 One-time payment • No recurring fees
               </Text>
             </VStack>
 
+            {/* PayPal */}
             <Box w="full" maxW="400px">
               {paypalClientId ? (
                 <PayPalButtons
-                  style={{
-                    layout: "vertical",
-                    color: "gold",
-                    shape: "rect",
-                    label: "paypal",
-                  }}
+                  style={{ layout: "vertical", color: "gold", shape: "rect", label: "paypal" }}
                   createOrder={(data, actions) => {
                     return actions.order.create({
                       purchase_units: [
                         {
-                          description:
-                            "Upgrade to Pro Plan - Text to Speech App",
-                          amount: {
-                            currency_code: "USD", // ✅ Changed from INR
-                            value: "120.00",
-                          },
+                          description: "Upgrade to Pro Plan - Text to Speech App",
+                          amount: { currency_code: "USD", value: "120.00" },
                           custom_id: user?.uid || "unknown_user",
                         },
                       ],
-                      application_context: {
-                        shipping_preference: "NO_SHIPPING",
-                      },
+                      application_context: { shipping_preference: "NO_SHIPPING" },
                     });
                   }}
                   onApprove={async (data, actions) => {
@@ -212,9 +208,9 @@ export default function UpgradePro() {
                   onCancel={handlePaymentCancel}
                 />
               ) : (
-                <VStack spacing={4} p={6} bg="gray.800" borderRadius="lg">
+                <VStack spacing={4} p={6} bg="gray.100" borderRadius="lg">
                   <Icon as={FaTimesCircle} w={8} h={8} color="orange.400" />
-                  <Text color="orange.400" fontWeight="bold">
+                  <Text color="orange.500" fontWeight="bold">
                     PayPal Not Configured
                   </Text>
                   <Button colorScheme="blue" size="sm" onClick={() => navigate("/")}>
@@ -224,21 +220,21 @@ export default function UpgradePro() {
               )}
             </Box>
 
-            <Divider borderColor="gray.700" />
+            <Divider borderColor="gray.300" />
 
             {paymentStatus === "processing" && (
-              <VStack spacing={4} p={6} bg="gray.800" borderRadius="lg">
-                <Spinner size="xl" color="blue.400" />
-                <Text fontSize="lg" color="blue.400">
+              <VStack spacing={4} p={6} bg="gray.100" borderRadius="lg">
+                <Spinner size="xl" color="blue.500" />
+                <Text fontSize="lg" color="blue.500">
                   Processing your payment...
                 </Text>
               </VStack>
             )}
 
             {paymentStatus === "success" && (
-              <VStack spacing={4} p={6} bg="gray.800" borderRadius="lg">
-                <Icon as={FaCheckCircle} w={16} h={16} color="green.400" />
-                <Heading size="lg" color="green.400">
+              <VStack spacing={4} p={6} bg="green.50" borderRadius="lg">
+                <Icon as={FaCheckCircle} w={16} h={16} color="green.500" />
+                <Heading size="lg" color="green.600">
                   Welcome to Pro! 🎉
                 </Heading>
                 <Badge colorScheme="purple" fontSize="lg" p={3}>
@@ -248,15 +244,12 @@ export default function UpgradePro() {
             )}
 
             {paymentStatus === "failed" && (
-              <VStack spacing={4} p={6} bg="gray.800" borderRadius="lg">
-                <Icon as={FaTimesCircle} w={16} h={16} color="red.400" />
-                <Heading size="lg" color="red.400">
+              <VStack spacing={4} p={6} bg="red.50" borderRadius="lg">
+                <Icon as={FaTimesCircle} w={16} h={16} color="red.500" />
+                <Heading size="lg" color="red.600">
                   Payment Failed ❌
                 </Heading>
-                <Button
-                  colorScheme="blue"
-                  onClick={() => setPaymentStatus("pending")}
-                >
+                <Button colorScheme="blue" onClick={() => setPaymentStatus("pending")}>
                   Try Again
                 </Button>
               </VStack>
